@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "eamodio.gitlens",
+        "bradlc.vscode-tailwindcss",
+        "MS-vsliveshare.vsliveshare",
+        "esbenp.prettier-vscode"
+    ]
+}
