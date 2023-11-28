@@ -3,7 +3,7 @@ let host = fallbackHost
 
 let schemeForHttp = 'https://'
 
-if (host === 'localhost:8080') {
+if (host === 'localhost:5000') {
 	schemeForHttp = 'http://'
 }
 
