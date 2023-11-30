@@ -1,74 +1,42 @@
-import { PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import clsx from 'clsx'
-import { InputHTMLAttributes } from 'react'
+import { FileInput, Label } from 'flowbite-react'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-	name: string
-	labelText?: string
-	allowMultiple: boolean
-	className?: string
-	files: File[]
-	maximumAllowedFiles: number
-	onUpload?: (files: File[]) => void
+interface FileDropzoneProps {
+	onUpload: (files: FileList) => void
 }
 
-export default function FileUpload({
-	name,
-	labelText,
-	onUpload,
-	allowMultiple,
-	files,
-	className,
-	maximumAllowedFiles
-}: InputProps) {
-	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (!event.target.files) return
-		const files = Array.from(event.target.files)
-		onUpload?.(files)
+export const FileUpload = ({ onUpload }: FileDropzoneProps) => {
+	const handleFileInputChange = (event: any) => {
+		onUpload(event.target.files)
 	}
 
 	return (
-		<div className={clsx('w-full', className)}>
-			{labelText && (
-				<label htmlFor={name} className="block text-[#0D0C18]">
-					{labelText}
-				</label>
-			)}
-
-			<div className="relative flex justify-between items-start">
-				<input
-					type="file"
-					className="hidden w-full appearance-none"
-					name={name}
-					accept="application/pdf"
-					multiple={allowMultiple}
-					onChange={handleInputChange}
-				/>
-
-				<div className="mt-2 ml-4 mb-20 flex flex-wrap basis-4/5 gap-x-2 gap-y-1">
-					{files.length > 0 &&
-						files.length <= maximumAllowedFiles &&
-						files.map((file, index) => (
-							<div
-								className="flex grow rounded-lg justify-between bg-[#F4F7FB] pr-4 pl-2 py-2 items-center"
-								key={index}>
-								<p className="text-primary line-clamp-1 text-ellipsis overflow-hidden">
-									{file.name}
-								</p>
-							</div>
-						))}
+		<div className="flex lg:w-8/12 w-full items-center justify-center">
+			<Label
+				htmlFor="dropzone-file"
+				onChange={handleFileInputChange}
+				className="dark:hover:bg-bray-800 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+				<div className="flex flex-col items-center justify-center pb-6 pt-5">
+					<svg
+						className="mb-4 h-8 w-8 text-gray-500 dark:text-gray-400"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 20 16">
+						<path
+							stroke="currentColor"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth="2"
+							d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+						/>
+					</svg>
+					<p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+						<span className="font-semibold">Click to upload</span> or drag and drop
+					</p>
+					<p className="text-xs text-gray-500 dark:text-gray-400">PDF</p>
 				</div>
-
-				<button
-					type="button"
-					className="sticky top-0 w-full basis-1/5 cursor-pointer gap-x-1.5 text-xs text-neutral rounded-md bg-white bg-opacity-30 py-1 px-2.5"
-					onClick={() => {
-						const fileInput = document.querySelector(`[name=${name}]`) as HTMLInputElement
-						fileInput.click()
-					}}>
-					<PaperClipIcon className="h-6 w-6 ml-auto mr-2 mt-2" />
-				</button>
-			</div>
+				<FileInput multiple={true} id="dropzone-file" className="hidden" accept="application/pdf" />
+			</Label>
 		</div>
 	)
 }

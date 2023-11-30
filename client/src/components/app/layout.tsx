@@ -17,9 +17,9 @@ export const AppLayout = ({ renderHeader = true, children, title }: AppLayoutPro
 	useDocumentTitle(docTitleText)
 
 	return (
-		<div className="relative bg-gray-900 min-h-screen">
-			{renderHeader ? <AppHeader /> : null}
-			{children}
+		<div className="relative">
+			{renderHeader ? <AppHeader>{children}</AppHeader> : null}
+			{!renderHeader ? children : null}
 		</div>
 	)
 }
