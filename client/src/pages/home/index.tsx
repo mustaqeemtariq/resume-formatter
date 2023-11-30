@@ -6,15 +6,18 @@ import resumeService from 'services/resume-service'
 import { Button } from 'components/app/button'
 import { XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-toastify'
+import { Spinner } from 'components/animation/spinner'
 
 export const Home = () => {
 	const [showDropzone, setShowDropzone] = useState(false)
 	const [files, setFiles] = useState<File[]>([])
+	const [isLoading, setIsLoading] = useState(false)
 
 	const handleSubmit = () => {
+		setIsLoading(true)
 		const resumeData = new FormData()
 		files.map(file => resumeData.append('resume', file))
-		resumeService.uploadResume(resumeData)
+		resumeService.uploadResume(resumeData).finally(() => setIsLoading(false))
 	}
 
 	const handleUpload = (newFiles: FileList) => {
@@ -65,7 +68,7 @@ export const Home = () => {
 				<div className="mt-10 flex items-center justify-center gap-x-6">
 					<div
 						onClick={() => setShowDropzone(true)}
-						className="rounded-md cursor-pointer bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+						className="rounded-md cursor-pointer bg-primary hover:bg-red-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 						Get started
 					</div>
 					<a href="/about" className="text-sm font-semibold leading-6 text-gray-900">
@@ -96,7 +99,14 @@ export const Home = () => {
 						</div>
 					)}
 					<Button disabled={files.length === 0} onClick={handleSubmit}>
-						Convert Resume
+						{isLoading ? (
+							<div className="flex items-center justify-center gap-x-5">
+								<Spinner />
+								<span className="animate-pulse whitespace-nowrap">Processing, Please wait...</span>
+							</div>
+						) : (
+							<span>Convert Resume</span>
+						)}
 					</Button>
 				</div>
 			)}

@@ -2,9 +2,9 @@ import axios from 'axios'
 import { apiHost } from 'utils/host'
 
 const uploadResume = (data: FormData) => {
-	axios
+	return axios
 		.post(`${apiHost}/upload`, data, { headers: { 'Content-Type': `multipart/form-data` } })
-		.then(res => console.log(res))
+		.then(response => response.data)
 }
 
 const resumeService = {
