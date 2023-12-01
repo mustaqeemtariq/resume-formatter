@@ -16,17 +16,17 @@ const openai = new OpenAI({
 router.post('/upload', upload.single('resume'), async (req, res) => {
 
   const pdfText = await extractTextFromPDF(req.file.path);
-  const prompt=[{ role: "system", content: `${message} \n ${pdfText}` }]
+  const prompt=[{ role: "system", content: `${message} : \n ${pdfText}` }]
   try {
     const response = await openai.chat.completions.create({
       messages: prompt,
       model: "gpt-3.5-turbo-1106",
-      max_tokens:1024,
+      max_tokens:2050,
       //response_format: { type: "json_object" },
     });
     const completion = response.choices[0].message.content;
 
-    return res.status(200).json(completion);
+    return res.status(200).json(pdfText);
 
   } catch (error) {
     return res.status(500).json({
