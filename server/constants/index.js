@@ -1,55 +1,20 @@
+
 const message =
 `Title: Extracted Text Analysis and Structuring into JSON
-
 Description: I have extracted text from various sources and need assistance in structuring it into a JSON format for further processing. The extracted text contains details related to personal and professional information.
-
-Instructions:
-Please generate a JSON structure based on the provided text. The JSON should be organized into the following categories:
-
-1.Basic Info:
-
-First Name
-Last Name
-Full Name (if available)
-Email
-Phone Number
-Location
-Portfolio Website URL
-LinkedIn URL
-GitHub Main Page URL
-University
-Education Level (BS, MS, or PhD)
-Graduation Year
-Graduation Month
-Majors
-GPA
-
-2.Work Experience:
-
-Job Title
-Company
-Location
-Duration
-Job Summary
-
-3.Project Experience:
-
-Project Name
-Project Description
-Additional Notes:
-
-The provided text might contain various formats and structures, and the task is to identify and extract the necessary details to populate the JSON structure accordingly.
-Please ensure the JSON structure follows the specified format and includes the requested information under each category.
-Any additional insights or suggestions about the extracted information would be greatly appreciated.
-
+Instructions: generate a JSON structure based on the provided text. The JSON should be organized into the following categories:
+1. Bio Data
+2. Skills
+3. Education
+4. Professional Experience
+5. Introduction
 Important Notes:
-1. Make sure only return Json.stringyfy response with mentioned keys.
-2. If you do not find information against specific key, make the value of that key empty.
-3. It should be JSON.stringify Format.
-4. It's crucial to provide a response with a maximum of 2050 tokens in length.
+ 1. Make sure only return Json response.
+ 2. If you do not find information against specific key, make the value of that key empty.
+ 3. It should be  proper JSON
+ 4. It's crucial to provide a response with a maximum of 2050 tokens in length.
 
-Thank you for your assistance!
-Here is my provided text to extract the response in above format: 
+ Text to analyze and create json from: 
 `
 
 
