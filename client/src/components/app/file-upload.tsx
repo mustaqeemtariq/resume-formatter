@@ -9,11 +9,36 @@ export const FileUpload = ({ onUpload }: FileDropzoneProps) => {
 		onUpload(event.target.files)
 	}
 
+	const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
+		event.preventDefault()
+		event.stopPropagation()
+		event.currentTarget.classList.add('drag-over-style')
+	}
+
+	const handleDragLeave = (event: React.DragEvent<HTMLLabelElement>) => {
+		event.preventDefault()
+		event.stopPropagation()
+		event.currentTarget.classList.remove('drag-over-style')
+	}
+
+	const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+		event.preventDefault()
+		event.stopPropagation()
+		event.currentTarget.classList.remove('drag-over-style')
+
+		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+			onUpload(event.dataTransfer.files)
+		}
+	}
+
 	return (
 		<div className="flex lg:w-8/12 w-full items-center justify-center">
 			<Label
 				htmlFor="dropzone-file"
 				onChange={handleFileInputChange}
+				onDragOver={handleDragOver}
+				onDragLeave={handleDragLeave}
+				onDrop={handleDrop}
 				className="dark:hover:bg-bray-800 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600">
 				<div className="flex flex-col items-center justify-center pb-6 pt-5">
 					<svg
@@ -33,7 +58,7 @@ export const FileUpload = ({ onUpload }: FileDropzoneProps) => {
 					<p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
 						<span className="font-semibold">Click to upload</span> or drag and drop
 					</p>
-					<p className="text-xs text-gray-500 dark:text-gray-400">PDF</p>
+					<p className="text-xs text-gray-500 dark:text-gray-400">PDF (MAX. 1 MB)</p>
 				</div>
 				<FileInput multiple={true} id="dropzone-file" className="hidden" accept="application/pdf" />
 			</Label>
