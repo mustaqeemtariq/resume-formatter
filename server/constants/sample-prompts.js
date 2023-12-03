@@ -79,10 +79,15 @@ const message1 = `Title: Extracted Text Analysis and Structuring into JSON
 Description: I have extracted text from various sources and need assistance in structuring it into a JSON format for further processing. The extracted text contains details related to personal and professional information.
 Instructions: generate a JSON structure based on the provided text. The JSON should be organized into the following categories:
 1. Bio Data
+Name
+Email
+Address
+Title
 2. Skills
 3. Education
 4. Professional Experience
-5. Introduction
+5. Projects
+6. Introduction
 Important Notes:
  1. Make sure only return Json response.
  2. If you do not find information against specific key, make the value of that key empty.

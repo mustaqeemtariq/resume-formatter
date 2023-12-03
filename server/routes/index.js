@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require('express');
 const multer = require('multer');
-//const axios = require('axios');
 const fs = require('fs');
 const PDFParser = require('pdf-parse');
 const  OpenAI  = require('openai');
@@ -22,7 +21,6 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
       messages: prompt,
       model: "gpt-3.5-turbo-1106",
       max_tokens:2050,
-      //response_format: { type: "json_object" },
     });
     const completion = response.choices[0].message.content;
 
