@@ -1,11 +1,11 @@
-const express = require("express");
-require("dotenv").config();
-const cors = require("cors");
+import express from "express";
+import dotenv from 'dotenv';
+import cors from "cors"
+import routes from "./routes/index.js";
+dotenv.config();
 const app = express();
-const PORT = process.env.HOST_PORT || 5000;
-const routes = require("./routes");
 app.use(cors());
-
+const PORT = process.env.HOST_PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
