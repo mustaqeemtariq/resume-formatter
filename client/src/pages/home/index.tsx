@@ -60,9 +60,9 @@ export const Home = () => {
 			return uniqueFiles
 		}, [] as File[])
 
-		if (updatedFiles.length > 5) {
-			toast.warn('For best performance maximum 5 files can be uploaded at a time.')
-			updatedFiles = updatedFiles.slice(0, 5)
+		if (updatedFiles.length > 10) {
+			toast.warn('For best performance maximum 10 files can be uploaded at a time.')
+			updatedFiles = updatedFiles.slice(0, 10)
 		}
 
 		setFiles(updatedFiles)
