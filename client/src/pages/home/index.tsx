@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { XCircleIcon } from '@heroicons/react/24/outline'
+import { ChevronRightIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import clsx from 'clsx'
 
@@ -13,10 +15,13 @@ import { useAppDispatch } from 'hooks'
 import { saveResumeInfo } from 'slices/resume'
 
 export const Home = () => {
+	const navigate = useNavigate()
+
 	const [showDropzone, setShowDropzone] = useState(false)
 	const [files, setFiles] = useState<File[]>([])
 	const [preview, setPreview] = useState<{ [name: string]: boolean }>()
 	const [isLoading, setIsLoading] = useState(false)
+	const [showResultButton, setShowResultButton] = useState(false)
 
 	const dispatch = useAppDispatch()
 
@@ -24,9 +29,13 @@ export const Home = () => {
 		setIsLoading(true)
 		const resumeData = new FormData()
 		files.map(file => resumeData.append('resume', file))
+
 		resumeService
 			.uploadResume(resumeData)
-			.then(res => dispatch(saveResumeInfo(res)))
+			.then(res => {
+				dispatch(saveResumeInfo(res))
+				setShowResultButton(true)
+			})
 			.finally(() => setIsLoading(false))
 	}
 
@@ -81,9 +90,9 @@ export const Home = () => {
 						className="rounded-md cursor-pointer bg-primary hover:bg-red-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 						Get started
 					</div>
-					<a href="/about" className="text-sm font-semibold leading-6 text-gray-900">
+					<Link to="/about" className="text-sm font-semibold leading-6 text-gray-900">
 						Learn more <span aria-hidden="true">→</span>
-					</a>
+					</Link>
 				</div>
 			) : (
 				<div className="flex mt-4 justify-center flex-col gap-y-4 items-center">
@@ -132,7 +141,10 @@ export const Home = () => {
 							</div>
 						</div>
 					)}
-					<Button disabled={files.length === 0} onClick={handleSubmit}>
+					<Button
+						className="rounded-lg"
+						disabled={files.length === 0 || isLoading}
+						onClick={handleSubmit}>
 						{isLoading ? (
 							<div className="flex items-center justify-center gap-x-5">
 								<Spinner />
@@ -142,6 +154,14 @@ export const Home = () => {
 							<span>Convert Resume</span>
 						)}
 					</Button>
+					{showResultButton && (
+						<button
+							onClick={() => navigate('/converted-resume')}
+							className="flex items-center gap-x-2 py-3 px-4 rounded-lg font-semibold bg-green-500 text-white">
+							<span>See converted resume</span>
+							<ChevronRightIcon className="h-5 w-5" />
+						</button>
+					)}
 				</div>
 			)}
 		</AppLayout>

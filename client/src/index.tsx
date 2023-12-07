@@ -9,6 +9,7 @@ import { Routing } from 'routing'
 import store from 'store'
 
 import 'react-toastify/dist/ReactToastify.css'
+import 'styles/main.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 const persistor = persistStore(store)
