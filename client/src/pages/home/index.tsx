@@ -38,7 +38,7 @@ export const Home = () => {
 				existingFile => existingFile.name === file.name && existingFile.size === file.size
 			)
 
-			const fileSizeExceedsLimit = file.size > 1000000
+			const fileSizeExceedsLimit = file.size > 100000000
 
 			if (fileAlreadyExists) {
 				toast.error(`${file.name} already exists.`)
