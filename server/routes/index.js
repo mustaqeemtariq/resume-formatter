@@ -5,6 +5,8 @@ const upload = multer({ dest: 'uploads/' });
 
 var router = express.Router();
 
-router.post('/upload', upload.array('resume',10), FileController.getChatGptResponse);
+router.post('/upload', upload.array('resume', 10), FileController.getChatGptResponse);
+
+router.get('/getFiles', FileController.getDocumentFiles)
 
 export default router;
