@@ -10,11 +10,12 @@ const openai = new OpenAI({
 export default class ChatGPTService {
 
     static getJson = async (pdf) => {
+
         try {
             const prompt = [{ role: "system", content: `${Constants.message} : ${pdf}` }];
             const response = await openai.chat.completions.create({
                 messages: prompt,
-                model: "gpt-3.5-turbo-1106", //"gpt-3.5-turbo-1106",
+                model: "gpt-3.5-turbo-1106",
                 max_tokens: 4096,
             });
             return JSON.parse(response.choices[0].message.content);
@@ -24,6 +25,7 @@ export default class ChatGPTService {
     }
 
     static async processMultipleTexts(pdfTexts) {
+        
         try {
             const promises = pdfTexts.map(pdf => ChatGPTService.getJson(pdf));
             const responses = await Promise.all(promises);
