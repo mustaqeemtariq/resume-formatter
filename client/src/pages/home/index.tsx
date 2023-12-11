@@ -11,8 +11,6 @@ import { AppLayout } from 'components/app/layout'
 import resumeService from 'services/resume-service'
 import { Button } from 'components/app/button'
 import { Spinner } from 'components/animation/spinner'
-import { useAppDispatch } from 'hooks'
-import { saveResumeInfo } from 'slices/resume'
 
 export const Home = () => {
 	const navigate = useNavigate()
@@ -23,8 +21,6 @@ export const Home = () => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [showResultButton, setShowResultButton] = useState(false)
 
-	const dispatch = useAppDispatch()
-
 	const handleSubmit = () => {
 		setIsLoading(true)
 		const resumeData = new FormData()
@@ -33,9 +29,21 @@ export const Home = () => {
 		resumeService
 			.uploadResume(resumeData)
 			.then(res => {
-				resumeService.getConvertedFile(res).then(res => console.log('RES', res))
+				resumeService.getConvertedFile(res).then(res => {
+					const blob = new Blob([res], {
+						type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+					})
+
+					const url = URL.createObjectURL(blob)
+					const link = document.createElement('a')
+					link.href = url
+					link.download = 'file.docx'
+					link.click()
+					URL.revokeObjectURL(url)
+				})
 				setShowResultButton(true)
 			})
+
 			.finally(() => setIsLoading(false))
 	}
 
@@ -80,7 +88,7 @@ export const Home = () => {
 				Convert Resume to a Presentable Format
 			</h1>
 			<p className="mt-6 text-lg leading-8 text-gray-600">
-				Upload resume in pdf format and see how it converts it to a presentable format.
+				Upload resume in pdf or doc format and see how it converts it to a presentable format.
 			</p>
 
 			{!showDropzone ? (
@@ -116,7 +124,9 @@ export const Home = () => {
 													{file.name} - ({Math.round(file.size / 1000)} kb)
 												</p>
 												<p className="text-[10px] italic">
-													{preview?.[file.name] ? '(Click to collapse)' : '(Click to view)'}
+													{file.type !==
+														'application/vnd.openxmlformats-officedocument.wordprocessingml.document' &&
+														(preview?.[file.name] ? '(Click to collapse)' : '(Click to view)')}
 												</p>
 											</div>
 											<XCircleIcon
@@ -124,44 +134,50 @@ export const Home = () => {
 													event.stopPropagation()
 													handleDelete(index)
 												}}
-												className="h-6 w-6 cursor-pointer fill-primary hover:fill-red-800 stroke-white"
+												className="h-6 w-6 shrink-0 cursor-pointer fill-primary hover:fill-red-800 stroke-white"
 											/>
 										</div>
-										{preview?.[file.name] && (
-											<iframe
-												key={file.name}
-												title={file.name}
-												src={URL.createObjectURL(file)}
-												width="100%"
-												height="400"
-												className="mb-4"></iframe>
-										)}
+										{preview?.[file.name] &&
+											file.type !==
+												'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+												<iframe
+													key={file.name}
+													title={file.name}
+													src={URL.createObjectURL(file)}
+													width="100%"
+													height="400"
+													className="mb-4"></iframe>
+											)}
 									</div>
 								))}
 							</div>
 						</div>
 					)}
-					<Button
-						className="rounded-lg"
-						disabled={files.length === 0 || isLoading}
-						onClick={handleSubmit}>
-						{isLoading ? (
-							<div className="flex items-center justify-center gap-x-5">
-								<Spinner />
-								<span className="animate-pulse whitespace-nowrap">Processing, Please wait...</span>
-							</div>
-						) : (
-							<span>Convert Resume</span>
+					<div className="fixed flex gap-x-4 justify-center w-full backdrop-blur-lg bottom-0 pt-2 pb-4">
+						<Button
+							className="rounded-lg"
+							disabled={files.length === 0 || isLoading}
+							onClick={handleSubmit}>
+							{isLoading ? (
+								<div className="flex items-center justify-center gap-x-5">
+									<Spinner />
+									<span className="animate-pulse whitespace-nowrap">
+										Processing, Please wait...
+									</span>
+								</div>
+							) : (
+								<span>Convert Resume</span>
+							)}
+						</Button>
+						{showResultButton && (
+							<button
+								onClick={() => navigate('/converted-resume')}
+								className="flex items-center gap-x-2 py-3 px-4 rounded-lg font-semibold bg-green-500 text-white">
+								<span>See converted resume</span>
+								<ChevronRightIcon className="h-5 w-5" />
+							</button>
 						)}
-					</Button>
-					{showResultButton && (
-						<button
-							onClick={() => navigate('/converted-resume')}
-							className="flex items-center gap-x-2 py-3 px-4 rounded-lg font-semibold bg-green-500 text-white">
-							<span>See converted resume</span>
-							<ChevronRightIcon className="h-5 w-5" />
-						</button>
-					)}
+					</div>
 				</div>
 			)}
 		</AppLayout>
