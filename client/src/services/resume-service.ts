@@ -3,11 +3,16 @@ import { apiHost } from 'utils/host'
 
 const uploadResume = (data: FormData) => {
 	return axios
-		.post(`${apiHost}/upload`, data, { headers: { 'Content-Type': `multipart/form-data` } })
+		.post(`${apiHost}/upload`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
 		.then(response => response.data)
 }
 
+const getConvertedFile = (id: string) => {
+	return axios.get(`${apiHost}/getFiles/${id}`).then(response => response.data)
+}
+
 const resumeService = {
+	getConvertedFile,
 	uploadResume
 }
 

@@ -33,7 +33,7 @@ export const Home = () => {
 		resumeService
 			.uploadResume(resumeData)
 			.then(res => {
-				dispatch(saveResumeInfo(res))
+				resumeService.getConvertedFile(res._id).then(res => console.log('RES', res))
 				setShowResultButton(true)
 			})
 			.finally(() => setIsLoading(false))
