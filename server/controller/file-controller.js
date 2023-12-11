@@ -4,6 +4,7 @@ import MongoService from "../services/mongo-service.js";
 
 
 export default class FileController {
+
   static getChatGptResponse = async (req, res) => {
     const combineText = await TextService.getCombinedText(req.files);
     try {
@@ -19,6 +20,17 @@ export default class FileController {
 
   static getDocumentFiles = async (req, res) => {
     const { id } = req.params;
-    console.log("IDDDDDDDDDDDDDDD: ",id)
+    try {
+      const data = await MongoService.GetData(id);
+
+      //?? Make a document (docx) from this json data
+
+      res.status(200).send(data) 
+    } catch (error) {
+      return res.status(500).json({
+        message: error,
+      });
+    }
   };
+
 }

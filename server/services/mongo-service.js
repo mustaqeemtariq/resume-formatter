@@ -9,7 +9,16 @@ export default class MongoService {
             const savedData = await resume.save(resume);
             return savedData._id
         } catch (error) {
-            throw new error(error)
+            return error
+        }
+    }
+
+    static GetData = async (id) => {
+        try {
+            const data = await Resume.findById(id);
+            return data;
+        } catch (error) {
+            return error
         }
     }
 }
