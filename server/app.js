@@ -2,7 +2,22 @@ import express from "express";
 import dotenv from 'dotenv';
 import cors from "cors"
 import routes from "./routes/index.js";
+import db from './models/index.js'
+
 dotenv.config();
+
+db.mongoose.connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('Successfully connect to MongoDB.');
+  })
+  .catch((err) => {
+    console.error('Connection error', err);
+  });
+
+
 const app = express();
 app.use(cors());
 const PORT = process.env.HOST_PORT || 5000;
