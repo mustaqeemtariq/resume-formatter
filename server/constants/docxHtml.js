@@ -1,7 +1,3 @@
-const PHONE_NUMBER = "07534563401";
-const PROFILE_URL = "https://www.linkedin.com/in/dolan1";
-const EMAIL = "docx@com";
-
 import {
   AlignmentType,
   Document,
@@ -239,7 +235,9 @@ export default DocumentCreator
 
 
 
-
+// const PHONE_NUMBER = "07534563401";
+// const PROFILE_URL = "https://www.linkedin.com/in/dolan1";
+// const EMAIL = "docx@com";
 
 // const experiences = [
 //   {

@@ -29,7 +29,7 @@ export default class FileController {
       const document = documentCreator
         .create([resume.personalInformation, resume.workExperience, resume.education, resume.skillsAndTools, resume.projects, resume["Career Summary"]]);
       const b64string = Packer.toBase64String(document);
-      res.setHeader("Content-Disposition", "attachment; filename=My Document.docx");
+      res.setHeader("Content-Disposition", `attachment; filename=${resume.personalInformation["Full Name"]}.docx`);
       res.send(Buffer.from(await b64string, "base64"));
 
     } catch (error) {
