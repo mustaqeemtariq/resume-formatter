@@ -30,16 +30,16 @@ export const Home = () => {
 			.uploadResume(resumeData)
 			.then(res => {
 				resumeService.getConvertedFile(res).then(res => {
-					const blob = new Blob([res], {
-						type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+					const href = URL.createObjectURL(new Blob([res], { type: 'octet-stream' }))
+					const a = Object.assign(document.createElement('a'), {
+						href,
+						style: 'display: none',
+						download: 'file.docx'
 					})
-
-					const url = URL.createObjectURL(blob)
-					const link = document.createElement('a')
-					link.href = url
-					link.download = 'file.docx'
-					link.click()
-					URL.revokeObjectURL(url)
+					document.body.appendChild(a)
+					a.click()
+					URL.revokeObjectURL(href)
+					a.remove()
 				})
 				setShowResultButton(true)
 			})
