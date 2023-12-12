@@ -8,7 +8,11 @@ const uploadResume = (data: FormData) => {
 }
 
 const getConvertedFile = (id: string) => {
-	return axios.get(`${apiHost}/getFiles/${id}`).then(response => response.data)
+	return axios ({
+	url:`${apiHost}/getFiles/${id}`,
+	method: "GET",
+	responseType: "blob"
+	}).then(response => response.data)
 }
 
 const resumeService = {

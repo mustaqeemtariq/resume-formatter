@@ -29,17 +29,20 @@ export const Home = () => {
 		resumeService
 			.uploadResume(resumeData)
 			.then(res => {
-				resumeService.getConvertedFile(res).then(res => {
-					const href = URL.createObjectURL(new Blob([res], { type: 'octet-stream' }))
-					const a = Object.assign(document.createElement('a'), {
+				resumeService.getConvertedFile(res).then(response => {
+					const href = URL.createObjectURL(
+						new Blob([response], { type: "octet-stream" })
+					  );
+					  const a = Object.assign(document.createElement("a"), {
 						href,
-						style: 'display: none',
-						download: 'file.docx'
-					})
-					document.body.appendChild(a)
-					a.click()
-					URL.revokeObjectURL(href)
-					a.remove()
+						style: "display: none",
+						download: "file.docx",
+					  });
+					  document.body.appendChild(a);
+					  a.click();
+					  URL.revokeObjectURL(href);
+					  a.remove();
+				  
 				})
 				setShowResultButton(true)
 			})

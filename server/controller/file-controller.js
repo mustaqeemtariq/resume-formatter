@@ -1,8 +1,7 @@
 import ChatGPTService from "../services/gpt-service.js";
 import TextService from "../utils/extract-text.js";
 import MongoService from "../services/mongo-service.js";
-import DocumentCreator from "../utils/document-maker.js";
-import { Packer } from "docx";
+import DocumentCreator from "../constants/docxHtml.js";
 
 
 export default class FileController {
@@ -23,14 +22,16 @@ export default class FileController {
   static getDocumentFiles = async (req, res) => {
     const { id } = req.params;
     try {
-      //const data = await MongoService.GetData(id);
-      const document = DocumentCreator.create();
-      const b64string = await Packer.toBase64String(document);
-      const buffer = Buffer.from(b64string, 'base64');
-      res.setHeader('Content-Disposition', 'attachment; filename=MyDocument.docx');
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-      res.status(200).send(buffer);
-      
+      const data = await MongoService.GetData(id);
+      const resume = data.resume[0]
+      const documentCreator = new DocumentCreator();
+      const document = documentCreator
+      .create([resume.workExperience, resume.education, resume.skillsAndTools, resume.projects]);
+
+      const b64string = Packer.toBase64String(document);
+      res.setHeader("Content-Disposition", "attachment; filename=My Document.docx");
+      res.send(Buffer.from(await b64string, "base64"));
+
     } catch (error) {
       return res.status(500).json({
         message: error,
