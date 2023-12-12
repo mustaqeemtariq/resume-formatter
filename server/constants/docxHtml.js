@@ -14,7 +14,7 @@ import {
 
 
 class DocumentCreator {
-  create([personalInformation,experiences, educations, skills, achivements]) {
+  create([personalInformation, experiences, educations, skills, projects, careerSummary]) {
     try {
       const document = new Document({
         sections: [
@@ -22,7 +22,7 @@ class DocumentCreator {
             children: [
               new Paragraph({
                 text: `${personalInformation["Full Name"]}`,
-                
+
                 heading: HeadingLevel.TITLE,
               }),
               this.createContactInfo(personalInformation.phone, personalInformation.socialMedia.linkedin, personalInformation.email),
@@ -41,15 +41,15 @@ class DocumentCreator {
                       `${education.degree}`
                     )
                   );
-  
+
                   return arr;
                 })
                 .reduce((prev, curr) => prev.concat(curr), []),
-              this.createHeading("Experience"),
+              this.createHeading("Work Experience"),
               ...experiences
                 .map((position) => {
                   const arr = [];
-  
+
                   arr.push(
                     this.createInstitutionHeader(
                       position.company,
@@ -60,38 +60,26 @@ class DocumentCreator {
                     )
                   );
                   arr.push(this.createRoleText(position.responsibilities[0]));
-  
+
                   return arr;
                 })
                 .reduce((prev, curr) => prev.concat(curr), []),
-              this.createHeading("Skills, Achievements and Interests"),
-              this.createSubHeading("Skills"),
+              this.createSubHeading("Skills and Tools"),
               this.createSkillList(skills),
-              this.createSubHeading("Achievements"),
-              ...this.createAchivementsList(achivements),
-              this.createSubHeading("Interests"),
-              this.createInterests(
-                "Programming, Technology, Music Production, Web Design, 3D Modelling, Dancing."
-              ),
-              this.createHeading("References"),
-              new Paragraph(
-                "Dr. Dean Mohamedally Director of Postgraduate Studies Department of Computer Science, University College London Malet Place, Bloomsbury, London WC1E d.mohamedally@ucl.ac.uk"
-              ),
-              new Paragraph("More references upon request"),
-              new Paragraph({
-                text: "This CV was generated in real-time based on my Linked-In profile from my personal website www.dolan.bio.",
-                alignment: AlignmentType.CENTER,
-              }),
+              this.createSubHeading("Projects"),
+              ...this.createAchivementsList(projects),
+              this.createHeading("Career Summary"),
+              new Paragraph(`${careerSummary?.summary}`),
             ],
           },
         ],
       });
-  
+
       return document;
     } catch (error) {
       console.log("Docx Html Error: ", error)
     }
-    
+
   }
 
   createContactInfo(phoneNumber, profileUrl, email) {
