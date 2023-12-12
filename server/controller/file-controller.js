@@ -2,6 +2,7 @@ import ChatGPTService from "../services/gpt-service.js";
 import TextService from "../utils/extract-text.js";
 import MongoService from "../services/mongo-service.js";
 import DocumentCreator from "../constants/docxHtml.js";
+import { Packer } from "docx";
 
 
 export default class FileController {
@@ -26,13 +27,13 @@ export default class FileController {
       const resume = data.resume[0]
       const documentCreator = new DocumentCreator();
       const document = documentCreator
-      .create([resume.workExperience, resume.education, resume.skillsAndTools, resume.projects]);
-
+        .create([resume.personalInformation, resume.workExperience, resume.education, resume.skillsAndTools, resume.projects]);
       const b64string = Packer.toBase64String(document);
       res.setHeader("Content-Disposition", "attachment; filename=My Document.docx");
       res.send(Buffer.from(await b64string, "base64"));
 
     } catch (error) {
+      console.log("File Controller error: ", error)
       return res.status(500).json({
         message: error,
       });

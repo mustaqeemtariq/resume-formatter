@@ -14,94 +14,84 @@ import {
 
 
 class DocumentCreator {
-  create([experiences, educations, skills, achivements]) {
-    const document = new Document({
-      sections: [
-        {
-          children: [
-            new Paragraph({
-              text: "Full Name",
-              heading: HeadingLevel.TITLE,
-            }),
-            this.createContactInfo(PHONE_NUMBER, PROFILE_URL, EMAIL),
-            this.createHeading("Education"),
-            ...educations
-              .map((education) => {
-                const arr = [];
-                arr.push(
-                  this.createInstitutionHeader(
-                    education.schoolName,
-                    `${education.startDate.year} - ${education.endDate.year}`
-                  )
-                );
-                arr.push(
-                  this.createRoleText(
-                    `${education.fieldOfStudy} - ${education.degree}`
-                  )
-                );
-
-                const bulletPoints = this.splitParagraphIntoBullets(
-                  education.notes
-                );
-                bulletPoints.forEach((bulletPoint) => {
-                  arr.push(this.createBullet(bulletPoint));
-                });
-
-                return arr;
-              })
-              .reduce((prev, curr) => prev.concat(curr), []),
-            this.createHeading("Experience"),
-            ...experiences
-              .map((position) => {
-                const arr = [];
-
-                arr.push(
-                  this.createInstitutionHeader(
-                    position.company.name,
-                    this.createPositionDateText(
-                      position.startDate,
-                      position.endDate,
-                      position.isCurrent
+  create([personalInformation,experiences, educations, skills, achivements]) {
+    try {
+      const document = new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({
+                text: `${personalInformation["Full Name"]}`,
+                
+                heading: HeadingLevel.TITLE,
+              }),
+              this.createContactInfo(personalInformation.phone, personalInformation.socialMedia.linkedin, personalInformation.email),
+              this.createHeading("Education"),
+              ...educations
+                .map((education) => {
+                  const arr = [];
+                  arr.push(
+                    this.createInstitutionHeader(
+                      education.institution,
+                      `${education.graduationDate}`
                     )
-                  )
-                );
-                arr.push(this.createRoleText(position.title));
-
-                const bulletPoints = this.splitParagraphIntoBullets(
-                  position.summary
-                );
-
-                bulletPoints.forEach((bulletPoint) => {
-                  arr.push(this.createBullet(bulletPoint));
-                });
-
-                return arr;
-              })
-              .reduce((prev, curr) => prev.concat(curr), []),
-            this.createHeading("Skills, Achievements and Interests"),
-            this.createSubHeading("Skills"),
-            this.createSkillList(skills),
-            this.createSubHeading("Achievements"),
-            ...this.createAchivementsList(achivements),
-            this.createSubHeading("Interests"),
-            this.createInterests(
-              "Programming, Technology, Music Production, Web Design, 3D Modelling, Dancing."
-            ),
-            this.createHeading("References"),
-            new Paragraph(
-              "Dr. Dean Mohamedally Director of Postgraduate Studies Department of Computer Science, University College London Malet Place, Bloomsbury, London WC1E d.mohamedally@ucl.ac.uk"
-            ),
-            new Paragraph("More references upon request"),
-            new Paragraph({
-              text: "This CV was generated in real-time based on my Linked-In profile from my personal website www.dolan.bio.",
-              alignment: AlignmentType.CENTER,
-            }),
-          ],
-        },
-      ],
-    });
-
-    return document;
+                  );
+                  arr.push(
+                    this.createRoleText(
+                      `${education.degree}`
+                    )
+                  );
+  
+                  return arr;
+                })
+                .reduce((prev, curr) => prev.concat(curr), []),
+              this.createHeading("Experience"),
+              ...experiences
+                .map((position) => {
+                  const arr = [];
+  
+                  arr.push(
+                    this.createInstitutionHeader(
+                      position.company,
+                      this.createPositionDateText(
+                        position.startDate,
+                        position.endDate,
+                      )
+                    )
+                  );
+                  arr.push(this.createRoleText(position.responsibilities[0]));
+  
+                  return arr;
+                })
+                .reduce((prev, curr) => prev.concat(curr), []),
+              this.createHeading("Skills, Achievements and Interests"),
+              this.createSubHeading("Skills"),
+              this.createSkillList(skills),
+              this.createSubHeading("Achievements"),
+              ...this.createAchivementsList(achivements),
+              this.createSubHeading("Interests"),
+              this.createInterests(
+                "Programming, Technology, Music Production, Web Design, 3D Modelling, Dancing."
+              ),
+              this.createHeading("References"),
+              new Paragraph(
+                "Dr. Dean Mohamedally Director of Postgraduate Studies Department of Computer Science, University College London Malet Place, Bloomsbury, London WC1E d.mohamedally@ucl.ac.uk"
+              ),
+              new Paragraph("More references upon request"),
+              new Paragraph({
+                text: "This CV was generated in real-time based on my Linked-In profile from my personal website www.dolan.bio.",
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+          },
+        ],
+      });
+  
+      return document;
+    } catch (error) {
+      console.log("Docx Html Error: ", error)
+    }
+    
   }
 
   createContactInfo(phoneNumber, profileUrl, email) {
@@ -179,7 +169,7 @@ class DocumentCreator {
   createSkillList(skills) {
     return new Paragraph({
       children: [
-        new TextRun(skills.map((skill) => skill.name).join(", ") + "."),
+        new TextRun(skills.map((skill) => skill).join(", ") + "."),
       ],
     });
   }
@@ -189,7 +179,7 @@ class DocumentCreator {
     return achivements.map(
       (achievement) =>
         new Paragraph({
-          text: achievement.name,
+          text: achievement.title,
           bullet: {
             level: 0,
           },
