@@ -31,12 +31,12 @@ export const Home = () => {
 			.then(res => {
 				resumeService.getConvertedFile(res).then(response => {
 					const href = URL.createObjectURL(
-						new Blob([response], { type: "octet-stream" })
+						new Blob([response], { type: 'application/zip' })
 					  );
 					  const a = Object.assign(document.createElement("a"), {
 						href,
 						style: "display: none",
-						download: "file.docx",
+						download: "resumes.zip",
 					  });
 					  document.body.appendChild(a);
 					  a.click();
