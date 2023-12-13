@@ -49,31 +49,50 @@ export default class FileController {
       const data = await MongoService.GetData(id);
       const resumes = data.resume
       const creater = new CreateDocument();
-      //============================================
-      // const htmlString = creater.create([resume?.personalInformation, resume?.careerSummary?.summary, resume?.skillsAndTools, resume?.workExperience, resume.projects, resume?.education]);
-      // const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-      //   table: { row: { cantSplit: true } },
-      //   footer: true,
-      //   pageNumber: true,
-      // });
 
-      // const base64String = fileBuffer.toString('base64');
-      // res.setHeader("Content-Disposition", 
-      // `attachment; filename=${resume.personalInformation.fullName}.docx`);
+      if (resumes.length > 1) {
+        const promises = resumes.map(async (resume) => {
+          const htmlString = creater.create([
+            resume?.personalInformation,
+            resume?.careerSummary?.summary,
+            resume?.skillsAndTools,
+            resume?.workExperience,
+            resume?.projects,
+            resume?.education,
+          ]);
 
-      // res.send(Buffer.from(await base64String, "base64"));
-      //=======================================================
+          const fileBuffer = await HTMLtoDOCX(htmlString, null, {
+            table: { row: { cantSplit: true } },
+            footer: true,
+            pageNumber: true,
+          });
 
-      const promises = resumes.map(async (resume) => {
-        const htmlString = creater.create([
-          resume?.personalInformation,
-          resume?.careerSummary?.summary,
-          resume?.skillsAndTools,
-          resume?.workExperience,
-          resume?.projects,
-          resume?.education,
-        ]);
+          const base64String = fileBuffer.toString('base64');
 
+          return {
+            base64: base64String,
+            fullName: resume.personalInformation.fullName,
+          };
+        });
+
+        const processedResumes = await Promise.all(promises);
+
+        const zip = new JSZip();
+        processedResumes.forEach((processedResume) => {
+          zip.file(
+            `${processedResume.fullName}.docx`,
+            Buffer.from(processedResume.base64, 'base64')
+          );
+        });
+
+        const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
+
+        res.setHeader('Content-Disposition', 'attachment; filename=resumes.zip');
+        res.send(zipBuffer);
+
+      } else {
+
+        const htmlString = creater.create([resumes[0]?.personalInformation, resumes[0]?.careerSummary?.summary, resumes[0]?.skillsAndTools, resumes[0]?.workExperience, resumes[0].projects, resumes[0]?.education]);
         const fileBuffer = await HTMLtoDOCX(htmlString, null, {
           table: { row: { cantSplit: true } },
           footer: true,
@@ -81,27 +100,12 @@ export default class FileController {
         });
 
         const base64String = fileBuffer.toString('base64');
+        res.setHeader("Content-Disposition",
+          `attachment; filename=${resumes[0].personalInformation.fullName}.docx`);
 
-        return {
-          base64: base64String,
-          fullName: resume.personalInformation.fullName,
-        };
-      });
+        res.send(Buffer.from(await base64String, "base64"));
+      }
 
-      const processedResumes = await Promise.all(promises);
-
-      const zip = new JSZip();
-      processedResumes.forEach((processedResume) => {
-        zip.file(
-          `${processedResume.fullName}.docx`,
-          Buffer.from(processedResume.base64, 'base64')
-        );
-      });
-
-      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-
-      res.setHeader('Content-Disposition', 'attachment; filename=resumes.zip');
-      res.send(zipBuffer);
 
     } catch (error) {
       console.log('Docx file creation failed in html to doc controller', error);

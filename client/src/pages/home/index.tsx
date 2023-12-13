@@ -31,18 +31,18 @@ export const Home = () => {
 			.then(res => {
 				resumeService.getConvertedFile(res).then(response => {
 					const href = URL.createObjectURL(
-						new Blob([response], { type: 'application/zip' })
-					  );
-					  const a = Object.assign(document.createElement("a"), {
+						new Blob([response], { type: files.length > 1 ? 'application/zip' : 'octet-stream' })
+					);
+					const a = Object.assign(document.createElement("a"), {
 						href,
 						style: "display: none",
-						download: "resumes.zip",
-					  });
-					  document.body.appendChild(a);
-					  a.click();
-					  URL.revokeObjectURL(href);
-					  a.remove();
-				  
+						download: files.length > 1 ? "resumes.zip" : 'file.docx',
+					});
+					document.body.appendChild(a);
+					a.click();
+					URL.revokeObjectURL(href);
+					a.remove();
+
 				})
 				setShowResultButton(true)
 			})
@@ -142,7 +142,7 @@ export const Home = () => {
 										</div>
 										{preview?.[file.name] &&
 											file.type !==
-												'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+											'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
 												<iframe
 													key={file.name}
 													title={file.name}
