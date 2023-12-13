@@ -1,228 +1,413 @@
-import {
-  AlignmentType,
-  Document,
-  HeadingLevel,
-  Paragraph,
-  TabStopPosition,
-  TabStopType,
-  TextRun,
-} from "docx";
-
+import { Document, Paragraph, TextRun, AlignmentType, HeadingLevel, TabStopType, TabStopPosition, BorderStyle, WidthType } from "docx";
 
 class DocumentCreator {
-  create([personalInformation, experiences, educations, skills, projects, careerSummary]) {
-    try {
-      const document = new Document({
-        sections: [
-          {
-            children: [
-              new Paragraph({
-                text: `${personalInformation["Full Name"]}`,
-
-                heading: HeadingLevel.TITLE,
-              }),
-              this.createContactInfo(personalInformation.phone, personalInformation.socialMedia.linkedin, personalInformation.email),
-              this.createHeading("Education"),
-              ...educations
-                .map((education) => {
-                  const arr = [];
-                  arr.push(
-                    this.createInstitutionHeader(
-                      education.institution,
-                      `${education.graduationDate}`
-                    )
-                  );
-                  arr.push(
-                    this.createRoleText(
-                      `${education.degree}`
-                    )
-                  );
-
-                  return arr;
-                })
-                .reduce((prev, curr) => prev.concat(curr), []),
-              this.createHeading("Work Experience"),
-              ...experiences
-                .map((position) => {
-                  const arr = [];
-
-                  arr.push(
-                    this.createInstitutionHeader(
-                      position.company,
-                      this.createPositionDateText(
-                        position.startDate,
-                        position.endDate,
-                      )
-                    )
-                  );
-                  arr.push(this.createRoleText(position.responsibilities[0]));
-
-                  return arr;
-                })
-                .reduce((prev, curr) => prev.concat(curr), []),
-              this.createSubHeading("Skills and Tools"),
-              this.createSkillList(skills),
-              this.createSubHeading("Projects"),
-              ...this.createAchivementsList(projects),
-              this.createHeading("Career Summary"),
-              new Paragraph(`${careerSummary?.summary}`),
+    create = (data) => {
+        const document = new Document({
+            sections: [
+                {
+                    children: [
+                        new Paragraph({
+                            text: data.personalInformation?.fullName || "",
+                            heading: HeadingLevel.HEADING_1,
+                            bold: true,
+                        }),
+                        new Paragraph({
+                            text: data.personalInformation?.title || "",
+                            heading: HeadingLevel.HEADING_2,
+                            color: "CB2027",
+                        }),
+                        this.createCareerSummary(data.careerSummary),
+                        this.createSkillsAndTools(data.skillsAndTools),
+                        this.
+                        createWorkExperience(data.workExperience),
+                        this.createProjects(data.projects),
+                        this.createEducation(data.education),
+                        new Paragraph({
+                            text: "Pre vetted by Codeninja Talent Cloud",
+                            color: "white",
+                            alignment: "center",
+                            bold: true,
+                            italics: true,
+                            size: 18,
+                        }),
+                    ],
+                },
             ],
-          },
-        ],
+        });
+
+        return document;
+    }
+
+    createCareerSummary = (summary) => {
+        return new Paragraph({
+            children: [
+                new TextRun({
+                    text: "CAREER SUMMARY",
+                    color: "white",
+                    bold: true,
+                }),
+                new TextRun("\n"),
+                new TextRun({
+                    text: summary || "",
+                    color: "4c6780",
+                }),
+            ],
+            heading: HeadingLevel.HEADING_2,
+            thematicBreak: {
+                val: BorderStyle.SINGLE,
+                color: "black",
+                space: 1,
+            },
+        });
+    }
+
+    createSkillsAndTools = (skillsAndTools) => {
+        return new Paragraph({
+            children: [
+                new TextRun({
+                    text: "SKILLS AND TOOLS",
+                    color: "white",
+                    bold: true,
+                }),
+                new TextRun("\n"),
+                new TextRun({
+                    text: skillsAndTools || "",
+                    color: "4c6780",
+                }),
+            ],
+            heading: HeadingLevel.HEADING_2,
+            thematicBreak: {
+                val: BorderStyle.SINGLE,
+                color: "black",
+                space: 1,
+            },
+        });
+    }
+
+    createWorkExperience = (workExperience) => {
+      const workExpParagraphs = workExperience.map((exp) => {
+          const roleDetails = exp.responsibilities.join("\n");
+
+          return new Paragraph({
+              children: [
+                  new TextRun({
+                      text: exp.company || "",
+                      bold: true,
+                      color: "white",
+                  }),
+                  new TextRun({
+                      text: `${exp.startDate} - ${exp.endDate || "Present"}`,
+                      bold: true,
+                      color: "white",
+                  }),
+                  new TextRun("\n"),
+                  new TextRun({
+                      text: exp.position || "",
+                      bold: true,
+                      color: "white",
+                  }),
+                  new TextRun("\n"),
+                  new TextRun({
+                      text: roleDetails,
+                      color: "4c6780",
+                  }),
+              ],
+              thematicBreak: {
+                  val: BorderStyle.SINGLE,
+                  color: "black",
+                  space: 1,
+              },
+          });
       });
 
-      return document;
-    } catch (error) {
-      console.log("Docx Html Error: ", error)
-    }
-
+      return [
+          new Paragraph({
+              text: "WORK EXPERIENCE",
+              heading: HeadingLevel.HEADING_2,
+              bold: true,
+              color: "white",
+          }),
+          ...workExpParagraphs,
+      ];
   }
 
-  createContactInfo(phoneNumber, profileUrl, email) {
-    return new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun(
-          `Mobile: ${phoneNumber} | LinkedIn: ${profileUrl} | Email: ${email}`
-        ),
-        new TextRun({
-          text: "Address: 58 Elm Avenue, Kent ME4 6ER, UK",
-          break: 1,
-        }),
-      ],
-    });
+  createProjects = (projects) => {
+      const projectParagraphs = projects.map((project) => {
+          return new Paragraph({
+              text: project || "",
+              bullet: {
+                  level: 0,
+              },
+          });
+      });
+
+      return [
+          new Paragraph({
+              text: "PROJECTS",
+              heading: HeadingLevel.HEADING_2,
+              bold: true,
+              color: "white",
+          }),
+          ...projectParagraphs,
+      ];
   }
 
-  createHeading(text) {
-    return new Paragraph({
-      text: text,
-      heading: HeadingLevel.HEADING_1,
-      thematicBreak: true,
-    });
+  createEducation = (education) => {
+      const eduParagraphs = education.map((edu) => {
+          return new Paragraph({
+              children: [
+                  new TextRun({
+                      text: edu.degree || "",
+                      bold: true,
+                      color: "white",
+                  }),
+                  new TextRun("\n"),
+                  new TextRun({
+                      text: edu.institution || "",
+                      color: "4c6780",
+                  }),
+                  new TextRun("\n"),
+                  new TextRun({
+                      text: edu.graduationDate || "",
+                      color: "4c6780",
+                  }),
+              ],
+              thematicBreak: {
+                  val: BorderStyle.SINGLE,
+                  color: "black",
+                  space: 1,
+              },
+          });
+      });
+
+      return [
+          new Paragraph({
+              text: "EDUCATION",
+              heading: HeadingLevel.HEADING_2,
+              bold: true,
+              color: "white",
+          }),
+          ...eduParagraphs,
+      ];
   }
 
-  createSubHeading(text) {
-    return new Paragraph({
-      text: text,
-      heading: HeadingLevel.HEADING_2,
-    });
-  }
 
-  createInstitutionHeader(institutionName, dateText) {
-    return new Paragraph({
-      tabStops: [
-        {
-          type: TabStopType.RIGHT,
-          position: TabStopPosition.MAX,
-        },
-      ],
-      children: [
-        new TextRun({
-          text: institutionName,
-          bold: true,
-        }),
-        new TextRun({
-          text: `\t${dateText}`,
-          bold: true,
-        }),
-      ],
-    });
-  }
-
-  createRoleText(roleText) {
-    return new Paragraph({
-      children: [
-        new TextRun({
-          text: roleText,
-          italics: true,
-        }),
-      ],
-    });
-  }
-
-  createBullet(text) {
-    return new Paragraph({
-      text: text,
-      bullet: {
-        level: 0,
-      },
-    });
-  }
-
-  // tslint:disable-next-line:no-any
-  createSkillList(skills) {
-    return new Paragraph({
-      children: [
-        new TextRun(skills.map((skill) => skill).join(", ") + "."),
-      ],
-    });
-  }
-
-  // tslint:disable-next-line:no-any
-  createAchivementsList(achivements) {
-    return achivements.map(
-      (achievement) =>
-        new Paragraph({
-          text: achievement.title,
-          bullet: {
-            level: 0,
-          },
-        })
-    );
-  }
-
-  createInterests(interests) {
-    return new Paragraph({
-      children: [new TextRun(interests)],
-    });
-  }
-
-  splitParagraphIntoBullets(text) {
-    return text.split("\n\n");
-  }
-
-  // tslint:disable-next-line:no-any
-  createPositionDateText(startDate, endDate, isCurrent) {
-    const startDateText =
-      this.getMonthFromInt(startDate.month) + ". " + startDate.year;
-    const endDateText = isCurrent
-      ? "Present"
-      : `${this.getMonthFromInt(endDate.month)}. ${endDate.year}`;
-
-    return `${startDateText} - ${endDateText}`;
-  }
-
-  getMonthFromInt(value) {
-    switch (value) {
-      case 1:
-        return "Jan";
-      case 2:
-        return "Feb";
-      case 3:
-        return "Mar";
-      case 4:
-        return "Apr";
-      case 5:
-        return "May";
-      case 6:
-        return "Jun";
-      case 7:
-        return "Jul";
-      case 8:
-        return "Aug";
-      case 9:
-        return "Sept";
-      case 10:
-        return "Oct";
-      case 11:
-        return "Nov";
-      case 12:
-        return "Dec";
-      default:
-        return "N/A";
-    }
-  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { Document, Paragraph, TextRun, AlignmentType, HeadingLevel, TabStopType, TabStopPosition, BorderStyle, WidthType } from "docx";
+
+// class DocumentCreator {
+//     create = ([personalInformation, careerSummary, skillsAndTools, workExperience, projects, education]) => {
+
+//       const document = new Document({
+//             sections: [
+//                 {
+//                     children: [
+//                         new Paragraph({
+//                             text: `${personalInformation.fullName}`,
+//                             heading: HeadingLevel.TITLE,
+//                         }),
+//                         this.createContactInfo(personalInformation?.phone, personalInformation?.socialMedia?.linkedin, personalInformation?.email),
+//                         this.createHeading("Education"),
+//                         ...education
+//                             .map((education) => {
+//                                 const arr = [];
+//                                 arr.push(
+//                                     this.createInstitutionHeader(
+//                                         education.institution,
+//                                         `${education.graduationDate}`
+//                                     )
+//                                 );
+//                                 arr.push(
+//                                     this.createRoleText(
+//                                         `${education.degree}`
+//                                     )
+//                                 );
+//                                 return arr;
+//                             })
+//                             .reduce((prev, curr) => prev.concat(curr), []),
+//                         this.createHeading("Work Experience"),
+//                         ...workExperience
+//                             .map((position) => {
+//                                 const arr = [];
+//                                 arr.push(
+//                                     this.createInstitutionHeader(
+//                                         position.company,
+//                                         this.createPositionDateText(
+//                                             position.startDate,
+//                                             position.endDate,
+//                                             position.isCurrent
+//                                         )
+//                                     )
+//                                 );
+//                                 arr.push(this.createRoleText(position.responsibilities[0]));
+//                                 return arr;
+//                             })
+//                             .reduce((prev, curr) => prev.concat(curr), []),
+//                         this.createSubHeading("Skills and Tools"),
+//                         this.createSkillList(skillsAndTools),
+//                         this.createSubHeading("Projects"),
+//                         ...this.createAchievementsList(projects),
+//                         this.createHeading("Career Summary"),
+//                         new Paragraph(`${careerSummary}`),
+//                     ],
+//                 },
+//             ],
+//         });
+
+//         return document;
+//     }
+
+//     createContactInfo(phoneNumber, profileUrl, email) {
+//         return new Paragraph({
+//             alignment: AlignmentType.CENTER,
+//             children: [
+//                 new TextRun(
+//                     `Mobile: ${phoneNumber} | LinkedIn: ${profileUrl} | Email: ${email}`
+//                 ),
+//                 new TextRun({
+//                     text: "Address: 58 Elm Avenue, Kent ME4 6ER, UK",
+//                     break: 1,
+//                 }),
+//             ],
+//         });
+//     }
+
+//     createHeading(text) {
+//         return new Paragraph({
+//             text: text,
+//             heading: HeadingLevel.HEADING_1,
+//             thematicBreak: {
+//                 val: BorderStyle.SINGLE,
+//                 space: 1,
+//                 color: "black",
+//             },
+//         });
+//     }
+
+//     createSubHeading(text) {
+//         return new Paragraph({
+//             text: text,
+//             heading: HeadingLevel.HEADING_2,
+//         });
+//     }
+
+//     createInstitutionHeader(institutionName, dateText) {
+//         return new Paragraph({
+//             tabStops: [
+//                 {
+//                     type: TabStopType.RIGHT,
+//                     position: TabStopPosition.MAX,
+//                 },
+//             ],
+//             children: [
+//                 new TextRun({
+//                     text: institutionName,
+//                     bold: true,
+//                 }),
+//                 new TextRun({
+//                     text: `\t${dateText}`,
+//                     bold: true,
+//                 }),
+//             ],
+//         });
+//     }
+
+//     createRoleText(roleText) {
+//         return new Paragraph({
+//             children: [
+//                 new TextRun({
+//                     text: roleText,
+//                     italics: true,
+//                 }),
+//             ],
+//         });
+//     }
+
+//     createSkillList(skills) {
+//         return new Paragraph({
+//             children: [
+//                 new TextRun(skills.map((skill) => skill).join(", ") + "."),
+//             ],
+//         });
+//     }
+
+//     createAchievementsList(achievements) {
+//         return achievements.map(
+//             (achievement) =>
+//                 new Paragraph({
+//                     text: achievement.title,
+//                     bullet: {
+//                         level: 0,
+//                     },
+//                 })
+//         );
+//     }
+
+//     createPositionDateText(startDate, endDate, isCurrent) {
+//         const startDateText =
+//             this.getMonthFromInt(startDate.month) + ". " + startDate.year;
+//         const endDateText = isCurrent
+//             ? "Present"
+//             : `${this.getMonthFromInt(endDate.month)}. ${endDate.year}`;
+
+//         return `${startDateText} - ${endDateText}`;
+//     }
+
+//     getMonthFromInt(value) {
+//         switch (value) {
+//             case 1:
+//                 return "Jan";
+//             case 2:
+//                 return "Feb";
+//             case 3:
+//                 return "Mar";
+//             case 4:
+//                 return "Apr";
+//             case 5:
+//                 return "May";
+//             case 6:
+//                 return "Jun";
+//             case 7:
+//                 return "Jul";
+//             case 8:
+//                 return "Aug";
+//             case 9:
+//                 return "Sept";
+//             case 10:
+//                 return "Oct";
+//             case 11:
+//                 return "Nov";
+//             case 12:
+//                 return "Dec";
+//             default:
+//                 return "N/A";
+//         }
+//     }
+// }
+
 
 export default DocumentCreator
 

@@ -30,7 +30,7 @@ export default class FileController {
       const resume = data.resume[0]
       const documentCreator = new DocumentCreator();
       const document = documentCreator
-        .create([resume.personalInformation, resume.workExperience, resume.education, resume.skillsAndTools, resume.projects, resume["Career Summary"]]);
+        .create(resume);
       const b64string = Packer.toBase64String(document);
       res.setHeader("Content-Disposition",
         `attachment; filename=${resume.personalInformation.fullName}.docx`);
