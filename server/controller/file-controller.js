@@ -4,7 +4,7 @@ import MongoService from "../services/mongo-service.js";
 import DocumentCreator from "../constants/docxHtml.js";
 import { Packer } from "docx";
 import HTMLtoDOCX from 'html-to-docx';
-import htmlString from "../constants/htmlString.js";
+import CreateDocument from "../constants/htmlString.js";
 
 export default class FileController {
 
@@ -30,7 +30,8 @@ export default class FileController {
       const document = documentCreator
         .create([resume.personalInformation, resume.workExperience, resume.education, resume.skillsAndTools, resume.projects, resume["Career Summary"]]);
       const b64string = Packer.toBase64String(document);
-      res.setHeader("Content-Disposition", `attachment; filename=${resume.personalInformation["Full Name"]}.docx`);
+      res.setHeader("Content-Disposition", 
+      `attachment; filename=${resume.personalInformation.fullName}.docx`);
       res.send(Buffer.from(await b64string, "base64"));
 
     } catch (error) {
@@ -46,7 +47,8 @@ export default class FileController {
     try {
       const data = await MongoService.GetData(id);
       const resume = data.resume[0]
-
+      const creater = new CreateDocument();
+      const htmlString = creater.create([resume?.personalInformation, resume?.careerSummary?.summary, resume?.skillsAndTools, resume?.workExperience, resume.projects, resume?.education]);
       const fileBuffer = await HTMLtoDOCX(htmlString, null, {
         table: { row: { cantSplit: true } },
         footer: true,
@@ -54,32 +56,13 @@ export default class FileController {
       });
 
       const base64String = fileBuffer.toString('base64');
-      res.setHeader("Content-Disposition", `attachment; filename=MyDocument.docx`);
+      res.setHeader("Content-Disposition", 
+      `attachment; filename=${resume.personalInformation.fullName}.docx`);
 
       res.send(Buffer.from(await base64String, "base64"));
 
     } catch (error) {
       console.log('Docx file creation failed in html to doc controller', error);
     }
-
-    // (async () => {
-    //   const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-    //     table: { row: { cantSplit: true } },
-    //     footer: true,
-    //     pageNumber: true,
-    //   });
-
-    //   const base64String = fileBuffer.toString('base64');
-    //   res.setHeader("Content-Disposition", `attachment; filename=MyDocument.docx`);
-
-    //   res.send(Buffer.from(await base64String, "base64"));
-
-      // fs.writeFile(filePath, fileBuffer, (error) => {
-      //   if (error) {
-      //     console.log('Docx file creation failed');
-      //     return;
-      //   }
-      //   console.log('Docx file created successfully', fileBuffer);
-      // });
   }
 }

@@ -1,7 +1,7 @@
 const templateToFollow = `{
   "personalInformation": {
-    "Title": "Software Engineer",
-    "Full Name": "John Doe",
+    "title": "Software Engineer",
+    "fullName": "John Doe",
     "email": "john.doe@example.com",
     "phone": "123-456-7890",
     "address": "123 Main Street, City, State, Zip",
@@ -12,7 +12,7 @@ const templateToFollow = `{
       "github": "https://github.com/johndoe"
     }
   },
-  "Career Summary": {
+  "careerSummary": {
     "summary": "Intro or summary"
   },
   "skillsAndTools": [
@@ -24,7 +24,6 @@ const templateToFollow = `{
     {
       "position": "Software Engineer",
       "company": "Tech Company XYZ",
-      "location": "City, State",
       "startDate": "June 20XX",
       "endDate": "Present",
       "responsibilities": [
@@ -35,7 +34,6 @@ const templateToFollow = `{
     {
       "position": "Intern",
       "company": "ABC Startup",
-      "location": "City, State",
       "startDate": "May 20XX",
       "endDate": "August 20XX",
       "responsibilities": [
