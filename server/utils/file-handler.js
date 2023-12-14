@@ -65,7 +65,7 @@ export default class FileHandler {
 
   static createFromTemplate = async (resumes) => {
     const zip = new JSZip();
-    const templateContent = fs.readFileSync('./templates/template.docx', 'binary');
+    const templateContent = fs.readFileSync('./template/template.docx', 'binary');
     const zipTemplate = new PizZip(templateContent);
     if (resumes.length > 1) {
       const documentPromises = resumes.map(async (resume, index) => {

@@ -13,13 +13,12 @@ import { Button } from 'components/app/button'
 import { Spinner } from 'components/animation/spinner'
 
 export const Home = () => {
-	const navigate = useNavigate()
-
 	const [showDropzone, setShowDropzone] = useState(false)
 	const [files, setFiles] = useState<File[]>([])
 	const [preview, setPreview] = useState<{ [name: string]: boolean }>()
 	const [isLoading, setIsLoading] = useState(false)
 	const [fetchingDocument, setFetchingDocument] = useState(false)
+	const [downloadLink, setDownloadLink] = useState<any>()
 
 	const handleSubmit = () => {
 		setIsLoading(true)
@@ -39,10 +38,7 @@ export const Home = () => {
 							style: 'display: none',
 							download: res.name
 						})
-						document.body.appendChild(a)
-						a.click()
-						URL.revokeObjectURL(href)
-						a.remove()
+						setDownloadLink(a)
 					})
 					.catch(() => toast.error('Error occured while converting'))
 					.finally(() => setFetchingDocument(false))
@@ -150,6 +146,7 @@ export const Home = () => {
 											<XCircleIcon
 												onClick={event => {
 													event.stopPropagation()
+													setDownloadLink(undefined)
 													handleDelete(index)
 												}}
 												className="h-6 w-6 shrink-0 cursor-pointer fill-primary hover:fill-red-800 stroke-white"
@@ -163,7 +160,7 @@ export const Home = () => {
 					<div className="flex gap-x-4 justify-center pt-2 pb-4">
 						<Button
 							className={clsx('rounded-lg', {
-								'shadow-lg shadow-red-300': files.length !== 0 && !isLoading
+								'shadow-lg shadow-red-200': files.length !== 0 && !isLoading
 							})}
 							disabled={files.length === 0 || isLoading}
 							onClick={handleSubmit}>
@@ -178,6 +175,14 @@ export const Home = () => {
 								<span>Convert Resume</span>
 							)}
 						</Button>
+						{downloadLink && (
+							<a
+								download={downloadLink.download}
+								href={downloadLink}
+								className="py-2.5 px-3 text-sm bg-green-500 text-white shadow-lg shadow-green-200 rounded-lg font-semibold">
+								Download Resume
+							</a>
+						)}
 					</div>
 				</div>
 			)}
