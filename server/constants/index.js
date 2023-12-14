@@ -12,9 +12,6 @@ const templateToFollow = `{
       "github": "https://github.com/johndoe"
     }
   },
-  "careerSummary": {
-    "summary": "Intro or summary"
-  },
   "skillsAndTools": [
     "JavaScript",
     "Python",

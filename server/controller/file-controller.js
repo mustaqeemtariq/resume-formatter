@@ -74,37 +74,40 @@ export default class FileController {
     try {
       const data = await MongoService.GetData(id);
       const resume = data.resume[0]
-      const templateContent = fs.readFileSync('C:/Users/ArbazChaudhary/Downloads/Template.docx', 'binary');
+      const templateContent = fs.readFileSync('./templates/template.docx', 'binary');
       const zip = new PizZip(templateContent);
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
       });
 
+      const workExperiences = resume.workExperience.map((experience) => ({
+        companyName: experience.company,
+        startDate: experience.startDate,
+        endDate: experience.endDate,
+        workTitle: experience.position,
+        responsibilities: experience.responsibilities,
+      }));
+
+      const projects = resume.projects.map((project) => ({
+        projectTitle: project.title
+      }));
+
+      const education = resume.education.map((education) => ({
+        degreeName: education.degree,
+        university: education.institution,
+        graduationDate: education.graduationDate
+
+      }));
+
       doc.render({
         userName: resume.personalInformation.fullName,
         jobTitle: resume.personalInformation.title,
-        careerSummary: resume.careerSummary.summary,
+        careerSummary: resume.personalInformation.summary,
         skillsAndTools: resume.skillsAndTools,
-        //work Exp
-        companyName: resume.workExperience[0].company,
-        startDate: resume.workExperience[0].startDate,
-        endDate: resume.workExperience[0].endDate,
-        workTitle: resume.workExperience[0].position,
-        responsibilities: resume.workExperience[0].responsibilities,
-        //===
-        projects: resume.projects.map(project => project.title),
-
-        //education
-        degreeName: resume.education[0].degree,
-        university: resume.education[0].institution,
-        graduationDate: resume.education[0].graduationDate
-
-
-
-
-
-
+        workExperiences: workExperiences,
+        projects: projects,
+        education: education
 
       });
 
@@ -117,17 +120,7 @@ export default class FileController {
 
       res.setHeader("Content-Disposition",
         `attachment; filename = MyDocument.docx`);
-
       res.send(buf);
-
-      // const buf = doc.getZip().generate({
-      //   type: "nodebuffer",
-      //   compression: "DEFLATE",
-      // });
-      // fs.writeFileSync('output.docx', buf);
-      console.log('Document generated successfully.');
-
-      res.status(200)
     } catch (error) {
       console.error('Error generating document:', error);
     }
