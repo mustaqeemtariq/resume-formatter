@@ -60,7 +60,12 @@ export const FileUpload = ({ onUpload }: FileDropzoneProps) => {
 					</p>
 					<p className="text-xs text-gray-500 dark:text-gray-400">PDF (MAX. 1 MB)</p>
 				</div>
-				<FileInput multiple={true} id="dropzone-file" className="hidden" accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+				<FileInput
+					multiple={true}
+					id="dropzone-file"
+					className="hidden"
+					accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+				/>
 			</Label>
 		</div>
 	)

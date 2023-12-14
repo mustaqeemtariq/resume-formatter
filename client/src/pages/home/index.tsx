@@ -19,34 +19,35 @@ export const Home = () => {
 	const [files, setFiles] = useState<File[]>([])
 	const [preview, setPreview] = useState<{ [name: string]: boolean }>()
 	const [isLoading, setIsLoading] = useState(false)
-	const [showResultButton, setShowResultButton] = useState(false)
+	const [fetchingDocument, setFetchingDocument] = useState(false)
 
 	const handleSubmit = () => {
 		setIsLoading(true)
 		const resumeData = new FormData()
 		files.map(file => resumeData.append('resume', file))
-
 		resumeService
 			.uploadResume(resumeData)
 			.then(res => {
-				resumeService.getConvertedFile(res.id).then(response => {
-					const href = URL.createObjectURL(
-						new Blob([response], { type: files.length > 1 ? 'application/zip' : 'octet-stream' })
-					);
-					const a = Object.assign(document.createElement("a"), {
-						href,
-						style: "display: none",
-						download: res.name,
-					});
-					document.body.appendChild(a);
-					a.click();
-					URL.revokeObjectURL(href);
-					a.remove();
-
-				})
-				setShowResultButton(true)
+				resumeService
+					.getConvertedFile(res.id)
+					.then(response => {
+						const href = URL.createObjectURL(
+							new Blob([response], { type: files.length > 1 ? 'application/zip' : 'octet-stream' })
+						)
+						const a = Object.assign(document.createElement('a'), {
+							href,
+							style: 'display: none',
+							download: res.name
+						})
+						document.body.appendChild(a)
+						a.click()
+						URL.revokeObjectURL(href)
+						a.remove()
+					})
+					.catch(() => toast.error('Error occured while converting'))
+					.finally(() => setFetchingDocument(false))
 			})
-
+			.catch(() => toast.error('Failed to convert. Please try again'))
 			.finally(() => setIsLoading(false))
 	}
 
@@ -85,9 +86,28 @@ export const Home = () => {
 		setFiles(newFiles)
 	}
 
+	if (fetchingDocument) {
+		return (
+			<AppLayout>
+				<div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-70 z-50">
+					<div className="fixed inset-1/2">
+						<Spinner className=" h-8 w-8 mb-2" />
+						<span className="whitespace-nowrap text-black -ml-[86px] text-xl animate-pulse">
+							Converting, Please Wait...
+						</span>
+					</div>
+				</div>
+			</AppLayout>
+		)
+	}
+
 	return (
 		<AppLayout>
-			<h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+			<h1
+				className={clsx(
+					'mt-20 font-bold tracking-tight text-gray-900',
+					showDropzone ? 'text-2xl sm:text-4xl' : 'text-4xl  sm:text-6xl'
+				)}>
 				Convert Resume to a Presentable Format
 			</h1>
 			<p className="mt-6 text-lg leading-8 text-gray-600">
@@ -111,7 +131,7 @@ export const Home = () => {
 					{files.length > 0 && (
 						<div className="flex flex-col items-center gap-y-2 w-full">
 							<h2 className="text-lg font-bold">Uploaded Files</h2>
-							<div className="text-center w-8/12">
+							<div className="text-center w-8/12 max-h-48 overflow-y-auto">
 								{files.map((file, index) => (
 									<div key={file.name}>
 										<div
@@ -126,11 +146,6 @@ export const Home = () => {
 												<p>
 													{file.name} - ({Math.round(file.size / 1000)} kb)
 												</p>
-												<p className="text-[10px] italic">
-													{file.type !==
-														'application/vnd.openxmlformats-officedocument.wordprocessingml.document' &&
-														(preview?.[file.name] ? '(Click to collapse)' : '(Click to view)')}
-												</p>
 											</div>
 											<XCircleIcon
 												onClick={event => {
@@ -140,25 +155,16 @@ export const Home = () => {
 												className="h-6 w-6 shrink-0 cursor-pointer fill-primary hover:fill-red-800 stroke-white"
 											/>
 										</div>
-										{preview?.[file.name] &&
-											file.type !==
-											'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
-												<iframe
-													key={file.name}
-													title={file.name}
-													src={URL.createObjectURL(file)}
-													width="100%"
-													height="400"
-													className="mb-4"></iframe>
-											)}
 									</div>
 								))}
 							</div>
 						</div>
 					)}
-					<div className="fixed flex gap-x-4 justify-center w-full backdrop-blur-lg bottom-0 pt-2 pb-4">
+					<div className="flex gap-x-4 justify-center pt-2 pb-4">
 						<Button
-							className="rounded-lg"
+							className={clsx('rounded-lg', {
+								'shadow-lg shadow-red-300': files.length !== 0 && !isLoading
+							})}
 							disabled={files.length === 0 || isLoading}
 							onClick={handleSubmit}>
 							{isLoading ? (
@@ -172,14 +178,6 @@ export const Home = () => {
 								<span>Convert Resume</span>
 							)}
 						</Button>
-						{showResultButton && (
-							<button
-								onClick={() => navigate('/converted-resume')}
-								className="flex items-center gap-x-2 py-3 px-4 rounded-lg font-semibold bg-green-500 text-white">
-								<span>See converted resume</span>
-								<ChevronRightIcon className="h-5 w-5" />
-							</button>
-						)}
 					</div>
 				</div>
 			)}

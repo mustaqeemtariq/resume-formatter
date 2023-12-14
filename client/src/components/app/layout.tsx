@@ -7,9 +7,15 @@ interface AppLayoutProps {
 	children: React.ReactNode
 	title?: string
 	renderHeader?: boolean
+	isSearchVisible?: boolean
 }
 
-export const AppLayout = ({ renderHeader = true, children, title }: AppLayoutProps) => {
+export const AppLayout = ({
+	renderHeader = true,
+	children,
+	title,
+	isSearchVisible = false
+}: AppLayoutProps) => {
 	const docTitleText = title
 		? `${title} | ResumeConverter`
 		: 'Resume Converter - Convert resume to a standard format'
@@ -18,7 +24,7 @@ export const AppLayout = ({ renderHeader = true, children, title }: AppLayoutPro
 
 	return (
 		<div className="relative">
-			{renderHeader ? <AppHeader>{children}</AppHeader> : null}
+			{renderHeader ? <AppHeader isSearchVisible={isSearchVisible}>{children}</AppHeader> : null}
 			{!renderHeader ? children : null}
 		</div>
 	)

@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { Dialog } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { defaultNavigation } from 'constants/index'
 
 interface HeaderProps {
 	navigation?: { name: string; href: string }[]
+	isSearchVisible?: boolean
+	onSearchInput?: (value: string) => void
 	children: React.ReactNode
 }
 
-export const AppHeader = ({ children, navigation = defaultNavigation }: HeaderProps) => {
+export const AppHeader = ({
+	children,
+	isSearchVisible,
+	onSearchInput,
+	navigation = defaultNavigation
+}: HeaderProps) => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
 	return (
@@ -44,11 +51,30 @@ export const AppHeader = ({ children, navigation = defaultNavigation }: HeaderPr
 							</a>
 						))}
 					</div>
-					<div className="hidden lg:flex lg:flex-1 lg:justify-end">
-						<a href="#" className="hover:text-primary font-semibold leading-6 text-gray-900">
-							Log in <span aria-hidden="true">&rarr;</span>
-						</a>
-					</div>
+					{isSearchVisible && (
+						<div className="hidden lg:flex lg:flex-1 lg:justify-end">
+							<div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
+								<div className="w-full max-w-lg lg:max-w-xs">
+									<label htmlFor="search" className="sr-only">
+										Search
+									</label>
+									<div className="relative">
+										<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+											<MagnifyingGlassIcon className="h-5 w-5 text-gray-600" aria-hidden="true" />
+										</div>
+										<input
+											id="search"
+											name="search"
+											onChange={event => onSearchInput?.(event.target.value)}
+											className="shadow-lg shadow-primary/[5%] focus:border-primary ring-0 block w-full rounded-md border border-gray-400 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6"
+											placeholder="Search"
+											type="search"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 				</nav>
 				<Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
 					<div className="fixed inset-0 z-50" />
@@ -107,11 +133,11 @@ export const AppHeader = ({ children, navigation = defaultNavigation }: HeaderPr
 						}}
 					/>
 				</div>
-				<div className="py-24 sm:py-32 lg:pb-40">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<div className="mx-auto max-w-2xl text-center">{children}</div>
-					</div>
+
+				<div className="mx-auto max-w-7xl px-6 lg:px-8">
+					<div className="mx-auto max-w-2xl text-center">{children}</div>
 				</div>
+
 				<div
 					className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
 					aria-hidden="true">
