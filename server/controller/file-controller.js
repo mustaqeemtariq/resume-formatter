@@ -15,7 +15,12 @@ export default class FileController {
     try {
       const response = await ChatGPTService.processMultipleTexts(combineText);
       const id = await MongoService.SaveData(response);
-      return res.status(200).send(id);
+      return res.status(200).send({
+        id: id,
+        name: response.length > 1
+          ? "resumes.zip"
+          : `${response[0].personalInformation?.fullName}.docx`
+      });
     } catch (error) {
       return res.status(500).json({
         message: error,
@@ -49,19 +54,16 @@ export default class FileController {
     try {
       const data = await MongoService.GetData(id);
       const resumes = data.resume
-      const response = await FileHandler(resumes);
+      const response = await FileHandler.createFromHtmlDoc(resumes);
 
       if (resumes.length > 1) {
 
         res.setHeader('Content-Disposition', 'attachment; filename=resumes.zip');
         res.send(response);
-
       } else {
-
         res.setHeader("Content-Disposition",
           `attachment; filename=${resumes[0].personalInformation.fullName}.docx`);
         res.send(Buffer.from(await response, "base64"));
-
       }
 
     } catch (error) {
@@ -73,54 +75,18 @@ export default class FileController {
     const { id } = req.params;
     try {
       const data = await MongoService.GetData(id);
-      const resume = data.resume[0]
-      const templateContent = fs.readFileSync('./templates/template.docx', 'binary');
-      const zip = new PizZip(templateContent);
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-      });
+      const resume = data.resume
 
-      const workExperiences = resume.workExperience.map((experience) => ({
-        companyName: experience.company,
-        startDate: experience.startDate,
-        endDate: experience.endDate,
-        workTitle: experience.position,
-        responsibilities: experience.responsibilities,
-      }));
+      const buffer = await FileHandler.createFromTemplate(resume);
 
-      const projects = resume.projects.map((project) => ({
-        projectTitle: project.title
-      }));
-
-      const education = resume.education.map((education) => ({
-        degreeName: education.degree,
-        university: education.institution,
-        graduationDate: education.graduationDate
-
-      }));
-
-      doc.render({
-        userName: resume.personalInformation.fullName,
-        jobTitle: resume.personalInformation.title,
-        careerSummary: resume.personalInformation.summary,
-        skillsAndTools: resume.skillsAndTools,
-        workExperiences: workExperiences,
-        projects: projects,
-        education: education
-
-      });
-
-      //const base64String = doc.toString('base64');
-
-      const buf = doc.getZip().generate({
-        type: "nodebuffer",
-        compression: "DEFLATE",
-      });
-
-      res.setHeader("Content-Disposition",
-        `attachment; filename = MyDocument.docx`);
-      res.send(buf);
+      if (resume.length > 1) {
+        res.setHeader('Content-Disposition', 'attachment; filename=resumes.zip');
+        res.send(buffer);
+      } else {
+        res.setHeader("Content-Disposition",
+          `attachment; filename=${resume[0].personalInformation.fullName}.docx`);
+        res.send(buffer)
+      }
     } catch (error) {
       console.error('Error generating document:', error);
     }

@@ -29,14 +29,14 @@ export const Home = () => {
 		resumeService
 			.uploadResume(resumeData)
 			.then(res => {
-				resumeService.getConvertedFile(res).then(response => {
+				resumeService.getConvertedFile(res.id).then(response => {
 					const href = URL.createObjectURL(
 						new Blob([response], { type: files.length > 1 ? 'application/zip' : 'octet-stream' })
 					);
 					const a = Object.assign(document.createElement("a"), {
 						href,
 						style: "display: none",
-						download: files.length > 1 ? "resumes.zip" : 'file.docx',
+						download: res.name,
 					});
 					document.body.appendChild(a);
 					a.click();
