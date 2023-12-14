@@ -3,10 +3,10 @@ import TextService from "../utils/extract-text.js";
 import MongoService from "../services/mongo-service.js";
 import DocumentCreator from "../constants/docxHtml.js";
 import { Packer } from "docx";
-import HTMLtoDOCX from 'html-to-docx';
-import CreateDocument from "../constants/htmlString.js";
-import JSZip from 'jszip';
 import FileHandler from "../utils/file-handler.js";
+import fs from 'fs';
+import Docxtemplater from 'docxtemplater';
+import PizZip from "PizZip"
 
 export default class FileController {
 
@@ -50,7 +50,7 @@ export default class FileController {
       const data = await MongoService.GetData(id);
       const resumes = data.resume
       const response = await FileHandler(resumes);
-      
+
       if (resumes.length > 1) {
 
         res.setHeader('Content-Disposition', 'attachment; filename=resumes.zip');
@@ -61,11 +61,42 @@ export default class FileController {
         res.setHeader("Content-Disposition",
           `attachment; filename=${resumes[0].personalInformation.fullName}.docx`);
         res.send(Buffer.from(await response, "base64"));
-        
+
       }
 
     } catch (error) {
       console.log('Docx file creation failed in html to doc controller', error);
+    }
+  }
+
+  static docxTemplator = async (req, res) => {
+    const jsonData = {
+      "Name": "Arbaz"
+    }
+    try {
+      const templateContent = fs.readFileSync('C:/Users/ArbazChaudhary/Desktop/Name.docx', 'binary');
+      const zip = new PizZip(templateContent);
+      const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+      });
+      doc.render({
+        first_name: "John",
+        last_name: "Doe",
+        fontSize: 22,
+      });
+      const buf = doc.getZip().generate({
+        type: "nodebuffer",
+        // compression: DEFLATE adds a compression step.
+        // For a 50MB output document, expect 500ms additional CPU time
+        compression: "DEFLATE",
+      });
+      fs.writeFileSync('output.docx', buf);
+      console.log('Document generated successfully.');
+
+      res.status(200)
+    } catch (error) {
+      console.error('Error generating document:', error);
     }
   }
 }

@@ -7,8 +7,10 @@ var router = express.Router();
 
 router.post('/upload', upload.array('resume', 10), FileController.getChatGptResponse);
 
- router.get('/getFiles/:id', FileController.getDocumentFiles)
+//router.get('/getFiles/:id', FileController.getDocumentFiles)
 
 //router.get('/getFiles/:id', FileController.htmlToDocLib)
+
+router.get('/getFiles/:id', FileController.docxTemplator)
 
 export default router;
