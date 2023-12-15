@@ -69,6 +69,7 @@ export default class FileHandler {
     const zipTemplate = new PizZip(templateContent);
     if (resumes.length > 1) {
       const documentPromises = resumes.map(async (resume, index) => {
+        const zipTemplate = new PizZip(templateContent);
         const doc = new Docxtemplater(zipTemplate, {
           paragraphLoop: true,
           linebreaks: true,
@@ -118,6 +119,7 @@ export default class FileHandler {
       return zipBuffer;
     }
     else {
+      const zipTemplate = new PizZip(templateContent);
       const doc = new Docxtemplater(zipTemplate, {
         paragraphLoop: true,
         linebreaks: true,
